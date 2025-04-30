@@ -34,7 +34,7 @@ const handleSubmit = async () => {
   try {
     const success = await authStore.login(form.username, form.password)
     if (success) {
-      router.push({ name: 'home' })
+      router.push({ name: 'dashboard' })
     } else {
       errorMessage.value = authStore.error || 'Login failed'
     }

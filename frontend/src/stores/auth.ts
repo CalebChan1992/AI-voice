@@ -4,7 +4,13 @@ import { authService } from '../services/api';
 interface User {
   id: number;
   username: string;
+  email?: string;
+  first_name?: string;
+  last_name?: string;
   role: string;
+  is_active?: boolean;
+  organization_id?: number;
+  created_at?: string;
   token?: string;
 }
 
@@ -35,7 +41,13 @@ export const useAuthStore = defineStore('auth', {
         this.user = {
           id: response.user_id,
           username: response.username,
+          email: response.email,
+          first_name: response.first_name,
+          last_name: response.last_name,
           role: response.role,
+          is_active: response.is_active,
+          organization_id: response.organization_id,
+          created_at: response.created_at,
           token: response.access_token
         };
 
@@ -77,12 +89,19 @@ export const useAuthStore = defineStore('auth', {
 
       try {
         const response = await authService.getCurrentUser();
+        const userData = response.data;
 
         // Create user object from response data
         this.user = {
-          id: response.data.user_id,
-          username: response.data.username,
-          role: response.data.role,
+          id: userData.id || userData.user_id,
+          username: userData.username,
+          email: userData.email,
+          first_name: userData.first_name,
+          last_name: userData.last_name,
+          role: userData.role,
+          is_active: userData.is_active,
+          organization_id: userData.organization_id,
+          created_at: userData.created_at,
           token: localStorage.getItem('access_token') || undefined
         };
       } catch (error) {
@@ -90,6 +109,27 @@ export const useAuthStore = defineStore('auth', {
       } finally {
         this.loading = false;
       }
+    },
+
+    // Helper method to check if user has a specific role
+    hasRole(role: string | string[]): boolean {
+      if (!this.user) return false;
+
+      if (Array.isArray(role)) {
+        return role.includes(this.user.role);
+      }
+
+      return this.user.role === role;
+    },
+
+    // Helper method to check if user is an admin
+    isAdmin(): boolean {
+      return this.hasRole('admin');
+    },
+
+    // Helper method to check if user is a manager or admin
+    isManagerOrAdmin(): boolean {
+      return this.hasRole(['admin', 'manager']);
     }
   }
 });

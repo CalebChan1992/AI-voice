@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   HomeIcon,
@@ -34,14 +34,40 @@ const logout = async () => {
   router.push('/login')
 }
 
-const navItems = [
-  { name: 'Dashboard', icon: HomeIcon, route: '/' },
-  { name: 'Voice Models', icon: SpeakerWaveIcon, route: '/voice-models' },
-  { name: 'Analytics', icon: ChartBarIcon, route: '/analytics' },
-  { name: 'Documents', icon: DocumentTextIcon, route: '/documents' },
-  { name: 'Profile', icon: UserIcon, route: '/profile' },
-  { name: 'Settings', icon: Cog6ToothIcon, route: '/settings' },
-]
+// Computed property to get navigation items based on user role
+const navItems = computed(() => {
+  // Base items for all users
+  const baseItems = [
+    { name: 'Dashboard', icon: HomeIcon, route: '/' },
+    { name: 'Voice Models', icon: SpeakerWaveIcon, route: '/voice-models' },
+    { name: 'Profile', icon: UserIcon, route: '/profile' },
+    { name: 'Settings', icon: Cog6ToothIcon, route: '/settings' },
+  ]
+
+  // Items for managers and admins
+  const managerItems = [
+    { name: 'Analytics', icon: ChartBarIcon, route: '/analytics' },
+    { name: 'Documents', icon: DocumentTextIcon, route: '/documents' },
+  ]
+
+  // Admin-only items
+  const adminItems = [
+    { name: 'User Management', icon: UserIcon, route: '/admin/users' },
+    { name: 'Organizations', icon: HomeIcon, route: '/admin/organizations' },
+  ]
+
+  // Add manager items if user is a manager or admin
+  if (authStore.isManagerOrAdmin()) {
+    baseItems.push(...managerItems)
+  }
+
+  // Add admin items if user is an admin
+  if (authStore.isAdmin()) {
+    baseItems.push(...adminItems)
+  }
+
+  return baseItems
+})
 </script>
 
 <template>

@@ -71,15 +71,23 @@ api.interceptors.response.use(
 // Authentication functions
 export const authService = {
   async login(username: string, password: string) {
-    const response = await api.post('/login', { username, password });
-    const { access_token, refresh_token } = response.data;
+    try {
+      console.log('Login attempt for user:', username);
+      const response = await api.post('/login', { username, password });
+      console.log('Login response:', response.data);
 
-    // Store tokens
-    localStorage.setItem('access_token', access_token);
-    localStorage.setItem('refresh_token', refresh_token);
+      const { access_token, refresh_token } = response.data;
 
-    // Return all user data from response
-    return response.data;
+      // Store tokens
+      localStorage.setItem('access_token', access_token);
+      localStorage.setItem('refresh_token', refresh_token);
+
+      // Return all user data from response
+      return response.data;
+    } catch (error) {
+      console.error('Login error:', error);
+      throw error;
+    }
   },
 
   async register(username: string, password: string) {
@@ -108,6 +116,57 @@ export const authService = {
 
   async getCurrentUser() {
     return await api.get('/user');
+  }
+};
+
+// User management API functions
+export const userService = {
+  async getUsers() {
+    return await api.get('/users');
+  },
+
+  async getUserById(userId: number) {
+    return await api.get(`/users/${userId}`);
+  },
+
+  async createUser(userData: {
+    username: string;
+    password: string;
+    email?: string;
+    first_name?: string;
+    last_name?: string;
+    role: string;
+    organization_id?: number;
+  }) {
+    return await api.post('/users', userData);
+  },
+
+  async updateUser(userId: number, userData: {
+    username?: string;
+    password?: string;
+    email?: string;
+    first_name?: string;
+    last_name?: string;
+    role?: string;
+    is_active?: boolean;
+    organization_id?: number;
+  }) {
+    return await api.put(`/users/${userId}`, userData);
+  },
+
+  async deleteUser(userId: number) {
+    return await api.delete(`/users/${userId}`);
+  }
+};
+
+// Organization API functions
+export const organizationService = {
+  async getOrganizations() {
+    return await api.get('/organizations');
+  },
+
+  async getOrganizationById(orgId: number) {
+    return await api.get(`/organizations/${orgId}`);
   }
 };
 
