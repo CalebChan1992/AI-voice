@@ -30,7 +30,7 @@ const router = createRouter({
 // Navigation guard
 router.beforeEach((to, from, next) => {
   const isAuthenticated = authService.isAuthenticated()
-  
+
   if (to.matched.some(record => record.meta.requiresAuth)) {
     // This route requires auth, check if logged in
     if (!isAuthenticated) {
