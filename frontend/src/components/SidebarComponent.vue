@@ -94,7 +94,8 @@ const navItems = [
   position: fixed;
   left: 0;
   top: 0;
-  z-index: 40;
+  z-index: 50; /* Higher than header to ensure sidebar is above */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 .sidebar.collapsed {
@@ -104,9 +105,9 @@ const navItems = [
 .sidebar-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 1.25rem 1rem;
+  padding: 0 1rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  height: 64px; /* Fixed height to match header */
 }
 
 .brand-container {
@@ -115,9 +116,10 @@ const navItems = [
   gap: 0.75rem;
   overflow: hidden;
   cursor: pointer;
-  padding: 0.5rem;
+  padding: 0;
   border-radius: 0.25rem;
   transition: background-color 0.2s;
+  height: 100%;
 }
 
 .brand-container:hover {
@@ -129,6 +131,10 @@ const navItems = [
   height: 2rem;
   color: #41B883; /* Vue green color */
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 0.5rem;
 }
 
 .brand-name {
@@ -167,7 +173,7 @@ const navItems = [
   display: flex;
   align-items: center;
   gap: 1rem;
-  padding: 0.75rem 1.5rem;
+  padding: 0.75rem 1rem;
   color: #e5e7eb;
   text-decoration: none;
   transition: background-color 0.2s, color 0.2s;
@@ -197,7 +203,7 @@ const navItems = [
 }
 
 .sidebar-footer {
-  padding: 1rem;
+  padding: 0.5rem 0;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -213,6 +219,7 @@ const navItems = [
   cursor: pointer;
   border-radius: 0.25rem;
   transition: background-color 0.2s;
+  margin-left: 0.5rem;
 }
 
 .logout-button:hover {

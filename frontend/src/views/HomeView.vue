@@ -71,6 +71,8 @@ const packageStats = [
   flex: 1;
   margin-left: 250px; /* Match sidebar width */
   transition: margin-left 0.3s ease;
+  display: flex;
+  flex-direction: column;
 }
 
 .main-content.sidebar-collapsed {

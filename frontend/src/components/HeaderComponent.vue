@@ -45,16 +45,19 @@ const authStore = useAuthStore()
   padding: 0.75rem 1.5rem;
   position: sticky;
   top: 0;
-  z-index: 50;
+  z-index: 45;
   width: 100%;
+  height: 64px; /* Fixed height to match sidebar header */
+  display: flex;
+  align-items: center;
 }
 
 .header-container {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  max-width: 1600px;
-  margin: 0 auto;
+  width: 100%;
+  height: 100%;
 }
 
 .header-left {
