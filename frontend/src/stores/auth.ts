@@ -4,6 +4,8 @@ import { authService } from '../services/api';
 interface User {
   id: number;
   username: string;
+  role: string;
+  token?: string;
 }
 
 interface AuthState {
@@ -20,15 +22,23 @@ export const useAuthStore = defineStore('auth', {
     loading: false,
     error: null,
   }),
-  
+
   actions: {
     async login(username: string, password: string) {
       this.loading = true;
       this.error = null;
-      
+
       try {
-        const userData = await authService.login(username, password);
-        this.user = userData as User;
+        const response = await authService.login(username, password);
+
+        // Create user object from response data
+        this.user = {
+          id: response.user_id,
+          username: response.username,
+          role: response.role,
+          token: response.access_token
+        };
+
         this.isAuthenticated = true;
         return true;
       } catch (error: any) {
@@ -38,11 +48,11 @@ export const useAuthStore = defineStore('auth', {
         this.loading = false;
       }
     },
-    
+
     async register(username: string, password: string) {
       this.loading = true;
       this.error = null;
-      
+
       try {
         await authService.register(username, password);
         return true;
@@ -53,21 +63,28 @@ export const useAuthStore = defineStore('auth', {
         this.loading = false;
       }
     },
-    
+
     logout() {
       authService.logout();
       this.user = null;
       this.isAuthenticated = false;
     },
-    
+
     async fetchCurrentUser() {
       if (!this.isAuthenticated) return;
-      
+
       this.loading = true;
-      
+
       try {
         const response = await authService.getCurrentUser();
-        this.user = response.data;
+
+        // Create user object from response data
+        this.user = {
+          id: response.data.user_id,
+          username: response.data.username,
+          role: response.data.role,
+          token: localStorage.getItem('access_token') || undefined
+        };
       } catch (error) {
         this.logout();
       } finally {

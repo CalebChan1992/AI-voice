@@ -30,6 +30,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(120), nullable=False)
+    role = db.Column(db.String(20), default='user')  # Added role field
 
     def __repr__(self):
         return f'<User {self.username}>'
@@ -70,11 +71,23 @@ def login():
     if not user or not user.check_password(data['password']):
         return jsonify({"msg": "Invalid username or password"}), 401
 
-    # Create tokens
-    access_token = create_access_token(identity=str(user.id))
+    # Create tokens with additional claims
+    additional_claims = {
+        'username': user.username,
+        'role': user.role
+    }
+
+    access_token = create_access_token(identity=str(user.id), additional_claims=additional_claims)
     refresh_token = create_refresh_token(identity=str(user.id))
 
-    return jsonify(access_token=access_token, refresh_token=refresh_token), 200
+    # Return user info along with tokens
+    return jsonify(
+        access_token=access_token,
+        refresh_token=refresh_token,
+        user_id=user.id,
+        username=user.username,
+        role=user.role
+    ), 200
 
 @app.route('/api/refresh', methods=['POST'])
 @jwt_required(refresh=True)
@@ -94,7 +107,11 @@ def get_user():
     if not user:
         return jsonify({"msg": "User not found"}), 404
 
-    return jsonify({"username": user.username}), 200
+    return jsonify({
+        "user_id": user.id,
+        "username": user.username,
+        "role": user.role
+    }), 200
 
 # AI voice-related routes (placeholder for now)
 @app.route('/api/voice/generate', methods=['POST'])

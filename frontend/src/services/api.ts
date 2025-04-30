@@ -30,28 +30,28 @@ api.interceptors.response.use(
   },
   async (error) => {
     const originalRequest = error.config;
-    
+
     // If the error is due to an expired token and we haven't tried to refresh yet
     if (error.response.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
-      
+
       try {
         // Try to refresh the token
         const refreshToken = localStorage.getItem('refresh_token');
         if (!refreshToken) {
           throw new Error('No refresh token available');
         }
-        
+
         const response = await axios.post('http://localhost:5000/api/refresh', {}, {
           headers: {
             'Authorization': `Bearer ${refreshToken}`
           }
         });
-        
+
         // Save the new access token
         const { access_token } = response.data;
         localStorage.setItem('access_token', access_token);
-        
+
         // Retry the original request with the new token
         originalRequest.headers.Authorization = `Bearer ${access_token}`;
         return axios(originalRequest);
@@ -63,7 +63,7 @@ api.interceptors.response.use(
         return Promise.reject(refreshError);
       }
     }
-    
+
     return Promise.reject(error);
   }
 );
@@ -73,38 +73,39 @@ export const authService = {
   async login(username: string, password: string) {
     const response = await api.post('/login', { username, password });
     const { access_token, refresh_token } = response.data;
-    
+
     // Store tokens
     localStorage.setItem('access_token', access_token);
     localStorage.setItem('refresh_token', refresh_token);
-    
-    return jwtDecode(access_token);
+
+    // Return all user data from response
+    return response.data;
   },
-  
+
   async register(username: string, password: string) {
     return await api.post('/register', { username, password });
   },
-  
+
   logout() {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
   },
-  
+
   isAuthenticated() {
     const token = localStorage.getItem('access_token');
     if (!token) return false;
-    
+
     try {
       const decoded: any = jwtDecode(token);
       const currentTime = Date.now() / 1000;
-      
+
       // Check if token is expired
       return decoded.exp > currentTime;
     } catch (error) {
       return false;
     }
   },
-  
+
   async getCurrentUser() {
     return await api.get('/user');
   }
